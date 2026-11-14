@@ -1,0 +1,1072 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure OTP Login</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #e8f5ef, #edf2ff);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 430px;
+            background: #fff;
+            padding: 38px 32px;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.09);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .logo-icon {
+            width: 55px;
+            height: 55px;
+            background: #0d6b4b;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            font-size: 27px;
+            margin-bottom: 12px;
+        }
+
+        .logo h2 {
+            color: #0d6b4b;
+            font-size: 25px;
+        }
+
+        .logo p {
+            color: #888;
+            font-size: 13px;
+            margin-top: 7px;
+        }
+
+        .screen h2 {
+            color: #222;
+            text-align: center;
+            font-size: 23px;
+            margin-bottom: 9px;
+        }
+
+        .subtitle {
+            color: #888;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .method-tabs {
+            display: flex;
+            padding: 5px;
+            background: #f1f4f2;
+            border-radius: 10px;
+            gap: 5px;
+            margin-bottom: 24px;
+        }
+
+        .method-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            background: transparent;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .method-btn.active {
+            background: #0d6b4b;
+            color: white;
+        }
+
+        .field {
+            margin-bottom: 19px;
+        }
+
+        .field label {
+            display: block;
+            color: #333;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 9px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            outline: none;
+            border-radius: 9px;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .field input:focus {
+            border-color: #0d6b4b;
+            box-shadow: 0 0 0 3px rgba(13,107,75,0.09);
+        }
+
+        .main-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            background: #0d6b4b;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .main-btn:hover {
+            background: #09543b;
+        }
+
+        .main-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .message {
+            font-size: 13px;
+            text-align: center;
+            margin-top: 15px;
+            line-height: 1.5;
+        }
+
+        .error {
+            color: #d93025;
+        }
+
+        .info {
+            color: #0d6b4b;
+        }
+
+        .otp-input {
+            text-align: center;
+            font-size: 26px !important;
+            letter-spacing: 12px;
+            font-weight: bold;
+            padding-left: 22px !important;
+        }
+
+        .resend-row {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 13px;
+            color: #777;
+        }
+
+        .resend-btn {
+            color: #0d6b4b;
+            border: none;
+            background: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .resend-btn:disabled {
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .back-btn {
+            display: block;
+            margin: 18px auto 0;
+            border: none;
+            background: none;
+            color: #777;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #e3f8ec;
+            color: #0d9b58;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 42px;
+            margin: 10px auto 20px;
+        }
+
+        .success-details {
+            background: #f5faf7;
+            padding: 17px;
+            border-radius: 10px;
+            margin: 22px 0;
+        }
+
+        .success-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #167849;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 12px 0;
+        }
+
+        .success-item span {
+            color: #0d9b58;
+            font-size: 19px;
+        }
+
+        .logged-user {
+            text-align: center;
+            color: #777;
+            font-size: 13px;
+            margin-bottom: 22px;
+            word-break: break-all;
+        }
+
+        .logout-btn {
+            background: #333;
+        }
+
+        .logout-btn:hover {
+            background: #111;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        @media(max-width: 480px) {
+            .login-container {
+                padding: 30px 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <div class="logo">
+        <div class="logo-icon">✓</div>
+        <h2>Secure Login</h2>
+        <p>Login securely using OTP verification</p>
+    </div>
+
+
+    <!-- LOGIN SCREEN -->
+
+    <section id="loginScreen" class="screen">
+
+        <h2>Welcome Back!</h2>
+        <p class="subtitle">
+            Enter your email or mobile number to receive a verification code.
+        </p>
+
+        <div class="method-tabs">
+
+            <button
+                type="button"
+                class="method-btn active"
+                id="emailTab"
+                onclick="switchMethod('email')">
+                Email ID
+            </button>
+
+            <button
+                type="button"
+                class="method-btn"
+                id="phoneTab"
+                onclick="switchMethod('phone')">
+                Mobile Number
+            </button>
+
+        </div>
+
+
+        <form id="loginForm">
+
+            <div class="field" id="emailField">
+
+                <label for="email">Email Address</label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter your email address"
+                    autocomplete="email"
+                    required>
+
+            </div>
+
+
+            <div class="field" id="phoneField" hidden>
+
+                <label for="phone">Mobile Number</label>
+
+                <input
+                    type="tel"
+                    id="phone"
+                    placeholder="+91 9876543210"
+                    autocomplete="tel"
+                    inputmode="tel">
+
+                <small style="color:#999; display:block; margin-top:7px;">
+                    Enter your number with country code, or enter your 10-digit
+                    Indian mobile number.
+                </small>
+
+            </div>
+
+
+            <button type="submit" class="main-btn" id="sendBtn">
+                Send OTP
+            </button>
+
+            <p class="message" id="loginMessage" aria-live="polite"></p>
+
+        </form>
+
+    </section>
+
+
+    <!-- OTP SCREEN -->
+
+    <section id="otpScreen" class="screen" hidden>
+
+        <h2>OTP Verification</h2>
+
+        <p class="subtitle">
+            We have sent a 6-digit verification code to:
+            <br>
+            <strong id="destinationText" style="color:#0d6b4b;"></strong>
+        </p>
+
+
+        <form id="otpForm">
+
+            <div class="field">
+
+                <label for="otp">Enter 6-Digit OTP</label>
+
+                <input
+                    type="text"
+                    id="otp"
+                    class="otp-input"
+                    placeholder="000000"
+                    maxlength="6"
+                    minlength="6"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    pattern="[0-9]{6}"
+                    required>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="main-btn"
+                id="verifyBtn">
+                Verify OTP
+            </button>
+
+            <p class="message" id="otpMessage" aria-live="polite"></p>
+
+        </form>
+
+
+        <div class="resend-row">
+            Didn't receive the code?
+
+            <button
+                type="button"
+                class="resend-btn"
+                id="resendBtn"
+                disabled
+                onclick="resendOTP()">
+                Resend OTP in 60s
+            </button>
+        </div>
+
+
+        <button class="back-btn" onclick="goBack()">
+            ← Change Email / Mobile Number
+        </button>
+
+    </section>
+
+
+    <!-- SUCCESS SCREEN -->
+
+    <section id="successScreen" class="screen" hidden>
+
+        <div class="success-icon">✓</div>
+
+        <h2 style="color:#0d6b4b;">
+            Login Successful!
+        </h2>
+
+        <p class="subtitle">
+            Your account has been successfully verified.
+            You are now logged in.
+        </p>
+
+
+        <div class="success-details">
+
+            <div class="success-item">
+                <span>✓</span>
+                OTP Verification Successful
+            </div>
+
+            <div class="success-item">
+                <span>✓</span>
+                Login Successful
+            </div>
+
+            <div class="success-item">
+                <span>✓</span>
+                Secure Session Created
+            </div>
+
+        </div>
+
+
+        <p class="logged-user">
+            Logged in as:
+            <strong id="loggedUser"></strong>
+        </p>
+
+
+        <button
+            class="main-btn logout-btn"
+            id="logoutBtn"
+            onclick="logout()">
+            Logout
+        </button>
+
+        <p class="message" id="successMessage"></p>
+
+    </section>
+
+
+    <div class="footer">
+        Secure OTP Authentication
+    </div>
+
+</div>
+
+
+<script type="module">
+
+    import { createClient }
+    from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+
+    // =====================================
+    // 1. SUPABASE CONFIGURATION
+    // =====================================
+
+    const SUPABASE_URL = "https://vbpyzuxgkucqcvbuqaqr.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+        "sb_publishable_9Fob6TyJMng45MKa1QF8bA_qmOJ2hxD";
+
+
+    const supabase = createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+    // =====================================
+    // 2. GLOBAL VARIABLES
+    // =====================================
+
+    let currentMethod = "email";
+
+    let currentDestination = "";
+
+    let resendInterval = null;
+
+
+    // =====================================
+    // 3. DOM ELEMENTS
+    // =====================================
+
+    const loginScreen = document.getElementById("loginScreen");
+
+    const otpScreen = document.getElementById("otpScreen");
+
+    const successScreen = document.getElementById("successScreen");
+
+    const loginForm = document.getElementById("loginForm");
+
+    const otpForm = document.getElementById("otpForm");
+
+    const emailInput = document.getElementById("email");
+
+    const phoneInput = document.getElementById("phone");
+
+    const otpInput = document.getElementById("otp");
+
+    const sendBtn = document.getElementById("sendBtn");
+
+    const verifyBtn = document.getElementById("verifyBtn");
+
+    const resendBtn = document.getElementById("resendBtn");
+
+
+    // =====================================
+    // 4. SUPABASE CONFIG CHECK
+    // =====================================
+
+    function checkConfiguration() {
+
+        if (
+            SUPABASE_URL.includes("YOUR_SUPABASE") ||
+            SUPABASE_PUBLISHABLE_KEY.includes("YOUR_SUPABASE")
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    // =====================================
+    // 5. SWITCH EMAIL / PHONE
+    // =====================================
+
+    window.switchMethod = function(method) {
+
+        currentMethod = method;
+
+        document.getElementById("emailTab")
+            .classList.toggle("active", method === "email");
+
+        document.getElementById("phoneTab")
+            .classList.toggle("active", method === "phone");
+
+        document.getElementById("emailField").hidden =
+            method !== "email";
+
+        document.getElementById("phoneField").hidden =
+            method !== "phone";
+
+        emailInput.required = method === "email";
+
+        phoneInput.required = method === "phone";
+
+        document.getElementById("loginMessage").textContent = "";
+
+    };
+
+
+    // =====================================
+    // 6. NORMALIZE PHONE NUMBER
+    // =====================================
+
+    function normalizePhone(value) {
+
+        let number = value.replace(/[\s()-]/g, "");
+
+        // Indian 10-digit number
+        if (/^\d{10}$/.test(number)) {
+
+            number = "+91" + number;
+
+        }
+
+        // Indian number with 91 but without +
+        else if (/^91\d{10}$/.test(number)) {
+
+            number = "+" + number;
+
+        }
+
+        // E.164 international format
+        if (!/^\+[1-9]\d{7,14}$/.test(number)) {
+
+            throw new Error(
+                "Please enter a valid mobile number with country code."
+            );
+
+        }
+
+        return number;
+
+    }
+
+
+    // =====================================
+    // 7. GET SELECTED DESTINATION
+    // =====================================
+
+    function getDestination() {
+
+        if (currentMethod === "email") {
+
+            const email = emailInput.value.trim();
+
+            if (!email) {
+
+                throw new Error("Please enter your email address.");
+
+            }
+
+            return email;
+
+        } else {
+
+            return normalizePhone(phoneInput.value.trim());
+
+        }
+
+    }
+
+
+    // =====================================
+    // 8. SEND OTP
+    // =====================================
+
+    async function sendOTP(isResend = false) {
+
+        const message = document.getElementById("loginMessage");
+
+        const otpMessage = document.getElementById("otpMessage");
+
+        try {
+
+            if (!checkConfiguration()) {
+
+                throw new Error(
+                    "Please add your Supabase URL and public key in the code first."
+                );
+
+            }
+
+            if (!isResend) {
+
+                currentDestination = getDestination();
+
+            }
+
+            sendBtn.disabled = true;
+
+            resendBtn.disabled = true;
+
+            message.textContent = "";
+
+            const credentials = currentMethod === "email"
+                ? {
+                    email: currentDestination,
+                    options: {
+                        shouldCreateUser: true
+                    }
+                }
+                : {
+                    phone: currentDestination,
+                    options: {
+                        shouldCreateUser: true
+                    }
+                };
+
+
+            const { error } = await supabase.auth.signInWithOtp(
+                credentials
+            );
+
+
+            if (error) {
+
+                throw error;
+
+            }
+
+
+            // Show OTP screen
+
+            loginScreen.hidden = true;
+
+            successScreen.hidden = true;
+
+            otpScreen.hidden = false;
+
+            otpInput.value = "";
+
+            document.getElementById("destinationText").textContent =
+                maskDestination(currentDestination);
+
+
+            otpMessage.textContent =
+                "OTP sent successfully. Please check your inbox.";
+
+            otpMessage.className = "message info";
+
+
+            startResendCountdown();
+
+        }
+
+        catch (error) {
+
+            const targetMessage = isResend
+                ? otpMessage
+                : message;
+
+            targetMessage.textContent = error.message;
+
+            targetMessage.className = "message error";
+
+        }
+
+        finally {
+
+            sendBtn.disabled = false;
+
+            sendBtn.textContent = "Send OTP";
+
+        }
+
+    }
+
+
+    // =====================================
+    // 9. MASK EMAIL / PHONE
+    // =====================================
+
+    function maskDestination(value) {
+
+        if (currentMethod === "email") {
+
+            const parts = value.split("@");
+
+            return parts[0].slice(0, 2) +
+                "****@" + parts[1];
+
+        }
+
+        return "******" + value.slice(-4);
+
+    }
+
+
+    // =====================================
+    // 10. LOGIN FORM SUBMIT
+    // =====================================
+
+    loginForm.addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        sendBtn.disabled = true;
+
+        sendBtn.textContent = "Sending OTP...";
+
+        await sendOTP();
+
+    });
+
+
+    // =====================================
+    // 11. OTP VERIFICATION
+    // =====================================
+
+    otpForm.addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        const token = otpInput.value.trim();
+
+        const otpMessage = document.getElementById("otpMessage");
+
+        if (!/^\d{6}$/.test(token)) {
+
+            otpMessage.textContent =
+                "Please enter a valid 6-digit OTP.";
+
+            otpMessage.className = "message error";
+
+            return;
+
+        }
+
+        verifyBtn.disabled = true;
+
+        verifyBtn.textContent = "Verifying...";
+
+        otpMessage.textContent = "";
+
+
+        try {
+
+            let verificationData;
+
+            if (currentMethod === "email") {
+
+                verificationData = {
+
+                    email: currentDestination,
+
+                    token: token,
+
+                    type: "email"
+
+                };
+
+            } else {
+
+                verificationData = {
+
+                    phone: currentDestination,
+
+                    token: token,
+
+                    type: "sms"
+
+                };
+
+            }
+
+
+            const { data, error } =
+                await supabase.auth.verifyOtp(verificationData);
+
+
+            if (error) {
+
+                throw error;
+
+            }
+
+
+            if (!data.session) {
+
+                throw new Error(
+                    "Verification completed, but login session was not created."
+                );
+
+            }
+
+
+            // OTP and Login successful
+
+            clearInterval(resendInterval);
+
+            otpScreen.hidden = true;
+
+            loginScreen.hidden = true;
+
+            successScreen.hidden = false;
+
+            document.getElementById("loggedUser").textContent =
+                currentDestination;
+
+        }
+
+        catch (error) {
+
+            otpMessage.textContent = error.message;
+
+            otpMessage.className = "message error";
+
+        }
+
+        finally {
+
+            verifyBtn.disabled = false;
+
+            verifyBtn.textContent = "Verify OTP";
+
+        }
+
+    });
+
+
+    // =====================================
+    // 12. RESEND OTP TIMER
+    // =====================================
+
+    function startResendCountdown() {
+
+        clearInterval(resendInterval);
+
+        let seconds = 60;
+
+        resendBtn.disabled = true;
+
+        resendBtn.textContent = `Resend OTP in ${seconds}s`;
+
+
+        resendInterval = setInterval(function() {
+
+            seconds--;
+
+            if (seconds <= 0) {
+
+                clearInterval(resendInterval);
+
+                resendBtn.disabled = false;
+
+                resendBtn.textContent = "Resend OTP";
+
+            } else {
+
+                resendBtn.textContent =
+                    `Resend OTP in ${seconds}s`;
+
+            }
+
+        }, 1000);
+
+    }
+
+
+    // =====================================
+    // 13. RESEND OTP
+    // =====================================
+
+    window.resendOTP = async function() {
+
+        resendBtn.disabled = true;
+
+        resendBtn.textContent = "Sending...";
+
+        await sendOTP(true);
+
+    };
+
+
+    // =====================================
+    // 14. GO BACK TO LOGIN
+    // =====================================
+
+    window.goBack = function() {
+
+        clearInterval(resendInterval);
+
+        otpScreen.hidden = true;
+
+        successScreen.hidden = true;
+
+        loginScreen.hidden = false;
+
+        otpInput.value = "";
+
+        document.getElementById("otpMessage").textContent = "";
+
+        resendBtn.disabled = true;
+
+        resendBtn.textContent = "Resend OTP in 60s";
+
+    };
+
+
+    // =====================================
+    // 15. LOGOUT
+    // =====================================
+
+    window.logout = async function() {
+
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        const successMessage =
+            document.getElementById("successMessage");
+
+        logoutBtn.disabled = true;
+
+        logoutBtn.textContent = "Logging out...";
+
+        try {
+
+            const { error } = await supabase.auth.signOut();
+
+            if (error) {
+
+                throw error;
+
+            }
+
+            successScreen.hidden = true;
+
+            loginScreen.hidden = false;
+
+            emailInput.value = "";
+
+            phoneInput.value = "";
+
+            otpInput.value = "";
+
+            currentDestination = "";
+
+            successMessage.textContent = "";
+
+        }
+
+        catch (error) {
+
+            successMessage.textContent = error.message;
+
+            successMessage.className = "message error";
+
+        }
+
+        finally {
+
+            logoutBtn.disabled = false;
+
+            logoutBtn.textContent = "Logout";
+
+        }
+
+    };
+
+
+    // =====================================
+    // 16. ONLY NUMBERS IN OTP
+    // =====================================
+
+    otpInput.addEventListener("input", function() {
+
+        this.value = this.value.replace(/\D/g, "").slice(0, 6);
+
+    });
+
+</script>
+
+</body>
+</html>
